@@ -1,5 +1,4 @@
-import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
@@ -15,17 +14,37 @@ from fastadmin import fastapi_app as admin_app
 from fastapi import FastAPI
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    
+
     # Startup
     await db.init_db()
-    
+
+    # Create superadmin user if not exists
+    from services.auth_service import auth_service
+
+    existing_admin = await db.get_record_by_field(User, email=settings.superadmin_email)
+    if not existing_admin:
+        # Create a default company for the superadmin
+        admin_company = await db.create_record(Company, name="Admin Company")
+
+        # Create superadmin user
+        password_hash = auth_service.get_password_hash(settings.superadmin_password)
+        await db.create_record(
+            User,
+            email=settings.superadmin_email,
+            password_hash=password_hash,
+            name="Super Admin",
+            company_id=admin_company.id,
+            is_superuser=True,
+            is_active=True,
+        )
+
     yield
-    
+
     # Shutdown
     await db.close_db()
+
 
 # Create FastAPI app
 app = FastAPI(
@@ -33,7 +52,7 @@ app = FastAPI(
     description="AI-powered customer messaging management system",
     version="1.0.0",
     debug=settings.debug,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -70,17 +89,9 @@ async def global_exception_handler(request, exc):
     """Global exception handler"""
     if settings.debug:
         raise exc
-    
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error"}
-    )
+
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=settings.debug
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=settings.debug)
