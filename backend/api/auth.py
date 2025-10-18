@@ -10,23 +10,7 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 security = HTTPBearer()
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(user_data: UserRegistration):
-    """Register new user with company"""
-    user = await auth_service.register_user(
-        email=user_data.email,
-        password=user_data.password,
-        name=user_data.name,
-        company_name=user_data.company_name
-    )
-    
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with this email already exists"
-        )
-    
-    return UserResponse.from_orm(user)
+# Registration endpoint removed - only admins can create users
 
 
 @router.post("/login", response_model=TokenResponse)

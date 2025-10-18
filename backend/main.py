@@ -1,18 +1,39 @@
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
 import uvicorn
 
 from common.settings import settings
 from common.database import db
 from api import auth, chats, messages, ai_config
+from models import User, Company
+from fastapi import FastAPI
+
+from fastadmin import fastapi_app as admin_app
+from fastapi import FastAPI
+
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    
+    # Startup
+    await db.init_db()
+    
+    yield
+    
+    # Shutdown
+    await db.close_db()
 
 # Create FastAPI app
 app = FastAPI(
     title=settings.app_name,
     description="AI-powered customer messaging management system",
     version="1.0.0",
-    debug=settings.debug
+    debug=settings.debug,
+    lifespan=lifespan
 )
 
 # Add CORS middleware
@@ -29,18 +50,7 @@ app.include_router(auth.router)
 app.include_router(chats.router)
 app.include_router(messages.router)
 app.include_router(ai_config.router)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup"""
-    await db.init_db()
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Close database connections on shutdown"""
-    await db.close_db()
+app.mount("/admin", admin_app)
 
 
 @app.get("/")

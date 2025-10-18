@@ -12,7 +12,7 @@ from schemas.auth import TokenResponse
 
 class AuthService:
     def __init__(self):
-        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self.pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
         
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """Verify a plain password against its hash"""

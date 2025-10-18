@@ -12,7 +12,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    company_id: UUID
+    company_name: str
 
 
 class UserUpdate(BaseModel):
