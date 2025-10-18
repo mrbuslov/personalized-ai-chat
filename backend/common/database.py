@@ -17,7 +17,7 @@ class DatabaseFacade:
     async def init_db(self):
         """Initialize database connection and generate schemas"""
         await Tortoise.init(
-            db_url=settings.database_url,
+            db_url=settings.db.database_url,
             modules={"models": ["models"]},
         )
         await Tortoise.generate_schemas()

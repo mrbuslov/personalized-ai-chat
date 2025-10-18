@@ -120,21 +120,6 @@ npm run dev
 
 ## Configuration
 
-### Environment Variables
-
-#### Database
-- `POSTGRES_DB`: Database name (default: personalized_ai_chat)
-- `POSTGRES_USER`: Database user (default: postgres)
-- `POSTGRES_PASSWORD`: Database password (default: password)
-
-#### Backend
-- `SECRET_KEY`: JWT secret key (change in production!)
-- `OPENAI_API_KEY`: OpenAI API key for AI features
-- `DEBUG`: Debug mode (default: false)
-- `CORS_ORIGINS`: Allowed CORS origins
-
-#### Frontend
-- `FRONTEND_API_BASE_URL`: Backend API URL (default: http://localhost:8000)
 
 ## Usage Guide
 

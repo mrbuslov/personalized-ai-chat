@@ -34,7 +34,7 @@
   }
   
   .textarea {
-    @apply input min-h-[100px] resize-vertical;
+    @apply input min-h-[100px] resize-y;
   }
   
   .card {

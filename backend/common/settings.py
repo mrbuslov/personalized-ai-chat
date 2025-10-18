@@ -2,17 +2,24 @@ from pydantic_settings import BaseSettings
 from typing import Optional
 
 
-class Settings(BaseSettings):
-    # Database configuration
-    app_db_user: str = "ai_chat_user"
-    app_db_password: str = "password"
-    app_db_name: str = "ai_chat"
-    postgres_host: str = "database"
-    postgres_port: int = 5432
+class PostgresSettings(BaseSettings):
+    USER: str
+    PASSWORD: str
+    DB: str
+    HOST: str
+    PORT: int
     
     @property
     def database_url(self) -> str:
-        return f"postgres://{self.app_db_user}:{self.app_db_password}@{self.postgres_host}:{self.postgres_port}/{self.app_db_name}"
+        return f"postgres://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.DB}"
+    
+    
+    class Config:
+        env_prefix = "POSTGRES_"
+
+
+class Settings(BaseSettings):    
+    db: PostgresSettings = PostgresSettings()
     
     # JWT configuration
     secret_key: str = "your-secret-key-change-in-production"
