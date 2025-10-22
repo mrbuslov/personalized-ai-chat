@@ -55,13 +55,32 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Add CORS middleware
+# Add CORS middleware - allow both local and ngrok origins
+cors_origins = [
+    "http://localhost:3000",
+    "https://localhost:3000",
+    "http://localhost:8001",
+    "https://profound-normally-crappie.ngrok-free.app",
+    "https://8525c1343c5f.ngrok-free.app",
+    # Add any other ngrok URLs you might use
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=[
+        "Accept",
+        "Accept-Language",
+        "Content-Language",
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "Origin",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers",
+    ],
 )
 
 # Include routers
