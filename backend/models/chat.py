@@ -8,8 +8,6 @@ from fastadmin import TortoiseModelAdmin, WidgetType, register
 class Chat(Model):
     id = fields.UUIDField(pk=True, default=uuid.uuid4)
     name = fields.CharField(max_length=255)
-    client_description = fields.TextField(null=True)
-    special_instructions = fields.TextField(null=True)
     user = fields.ForeignKeyField("models.User", related_name="chats")
     company = fields.ForeignKeyField("models.Company", related_name="chats")
     created_at = fields.DatetimeField(auto_now_add=True)
@@ -31,9 +29,7 @@ class ChatAdmin(TortoiseModelAdmin):
     list_display = ("id", "name", "user", "company", "created_at")
     list_display_links = ("id", "name")
     list_filter = ("created_at", "user", "company")
-    search_fields = ("name", "client_description")
+    search_fields = ("name",)
     formfield_overrides = {  # noqa: RUF012
         "name": (WidgetType.Input, {"required": True}),
-        "client_description": (WidgetType.TextArea, {"required": False}),
-        "special_instructions": (WidgetType.TextArea, {"required": False}),
     }

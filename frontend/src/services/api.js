@@ -26,12 +26,23 @@ class ApiService {
       async (error) => {
         const original = error.config;
         
-        if (error.response?.status === 401 && !original._retry) {
+        // Don't retry if it's the refresh endpoint itself or already retried
+        if (error.response?.status === 401 && !original._retry && !original.url?.includes('/auth/refresh')) {
           original._retry = true;
           
           try {
             const refreshToken = localStorage.getItem('refresh_token');
-            const response = await this.client.post('/auth/refresh', {
+            
+            if (!refreshToken) {
+              // No refresh token available, redirect to login
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('refresh_token');
+              window.location.href = '/login';
+              return Promise.reject(error);
+            }
+            
+            // Use axios directly to avoid interceptor loop
+            const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
               refresh_token: refreshToken,
             });
             
@@ -39,8 +50,12 @@ class ApiService {
             localStorage.setItem('access_token', access_token);
             localStorage.setItem('refresh_token', refresh_token);
             
+            // Update the failed request with new token
+            original.headers.Authorization = `Bearer ${access_token}`;
+            
             return this.client(original);
           } catch (refreshError) {
+            // Refresh failed, clear tokens and redirect
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
             window.location.href = '/login';
@@ -99,9 +114,13 @@ class ApiService {
   async createChat(name, clientDescription = '', specialInstructions = '') {
     const response = await this.client.post('/chats/', {
       name,
-      client_description: clientDescription,
-      special_instructions: specialInstructions,
     });
+    
+    // If we have client description or special instructions, create AI config
+    if (clientDescription || specialInstructions) {
+      await this.updateChatAIConfig(response.data.id, clientDescription, specialInstructions);
+    }
+    
     return response.data;
   }
 
@@ -173,16 +192,18 @@ class ApiService {
     return response.data;
   }
 
-  async updateGlobalAIConfig(globalPrompt) {
+  async updateGlobalAIConfig(clientDescription = '', specialInstructions = '') {
     const response = await this.client.put('/ai-config/global', {
-      global_prompt: globalPrompt,
+      client_description: clientDescription,
+      special_instructions: specialInstructions,
     });
     return response.data;
   }
 
-  async updateChatAIConfig(chatId, globalPrompt) {
+  async updateChatAIConfig(chatId, clientDescription = '', specialInstructions = '') {
     const response = await this.client.put(`/ai-config/chat/${chatId}`, {
-      global_prompt: globalPrompt,
+      client_description: clientDescription,
+      special_instructions: specialInstructions,
     });
     return response.data;
   }

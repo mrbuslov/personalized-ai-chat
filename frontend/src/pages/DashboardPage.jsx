@@ -157,11 +157,6 @@ const DashboardPage = ({ user }) => {
                     </button>
                   </div>
                   
-                  {chat.client_description && (
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {chat.client_description}
-                    </p>
-                  )}
                   
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span>Created {formatDate(chat.created_at)}</span>

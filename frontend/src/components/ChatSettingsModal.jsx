@@ -5,6 +5,7 @@ import LoadingSpinner from './LoadingSpinner';
 
 const ChatSettingsModal = ({ chatId, onClose }) => {
   const [specialInstructions, setSpecialInstructions] = useState('');
+  const [clientDescription, setClientDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState('');
@@ -13,8 +14,9 @@ const ChatSettingsModal = ({ chatId, onClose }) => {
   const loadConfig = async () => {
     try {
       const config = await apiService.getChatAIConfig(chatId);
-      if (config && config.global_prompt) {
-        setSpecialInstructions(config.global_prompt);
+      if (config) {
+        setSpecialInstructions(config.special_instructions || '');
+        setClientDescription(config.client_description || '');
       }
     } catch (error) {
       console.error('Error loading chat AI config:', error);
@@ -34,7 +36,7 @@ const ChatSettingsModal = ({ chatId, onClose }) => {
     setIsLoading(true);
 
     try {
-      await apiService.updateChatAIConfig(chatId, specialInstructions);
+      await apiService.updateChatAIConfig(chatId, clientDescription, specialInstructions);
       setSuccess(true);
       setTimeout(() => {
         onClose();
@@ -80,6 +82,20 @@ const ChatSettingsModal = ({ chatId, onClose }) => {
                   Chat AI settings updated successfully!
                 </div>
               )}
+
+              <div>
+                <label htmlFor="clientDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                  Client Description for this Chat
+                </label>
+                <textarea
+                  id="clientDescription"
+                  rows={3}
+                  className="textarea"
+                  placeholder="Describe the specific client for this chat (overrides global client description)..."
+                  value={clientDescription}
+                  onChange={(e) => setClientDescription(e.target.value)}
+                />
+              </div>
 
               <div>
                 <label htmlFor="specialInstructions" className="block text-sm font-medium text-gray-700 mb-2">

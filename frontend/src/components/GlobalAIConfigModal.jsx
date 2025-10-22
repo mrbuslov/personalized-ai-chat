@@ -4,7 +4,8 @@ import { apiService } from '../services/api';
 import LoadingSpinner from './LoadingSpinner';
 
 const GlobalAIConfigModal = ({ onClose }) => {
-  const [globalPrompt, setGlobalPrompt] = useState('');
+  const [specialInstructions, setSpecialInstructions] = useState('');
+  const [clientDescription, setClientDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState('');
@@ -13,8 +14,9 @@ const GlobalAIConfigModal = ({ onClose }) => {
   const loadConfig = async () => {
     try {
       const config = await apiService.getGlobalAIConfig();
-      if (config && config.global_prompt) {
-        setGlobalPrompt(config.global_prompt);
+      if (config) {
+        setSpecialInstructions(config.special_instructions || '');
+        setClientDescription(config.client_description || '');
       }
     } catch (error) {
       console.error('Error loading AI config:', error);
@@ -34,7 +36,7 @@ const GlobalAIConfigModal = ({ onClose }) => {
     setIsLoading(true);
 
     try {
-      await apiService.updateGlobalAIConfig(globalPrompt);
+      await apiService.updateGlobalAIConfig(clientDescription, specialInstructions);
       setSuccess(true);
       setTimeout(() => {
         onClose();
@@ -79,16 +81,30 @@ const GlobalAIConfigModal = ({ onClose }) => {
               )}
 
               <div>
-                <label htmlFor="globalPrompt" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="clientDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                  Global Client Description
+                </label>
+                <textarea
+                  id="clientDescription"
+                  rows={3}
+                  className="textarea"
+                  placeholder="Default description of your clients/customers that applies globally..."
+                  value={clientDescription}
+                  onChange={(e) => setClientDescription(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="specialInstructions" className="block text-sm font-medium text-gray-700 mb-2">
                   Global Manager Personality & Behavior
                 </label>
                 <textarea
-                  id="globalPrompt"
+                  id="specialInstructions"
                   rows={12}
                   className="textarea"
                   placeholder="Define how the AI should behave as a customer service manager. This will be used as the base prompt for all chats unless overridden by chat-specific instructions.&#10;&#10;Example:&#10;You are a professional customer service manager with 10+ years of experience. You are empathetic, solution-oriented, and always maintain a positive attitude. Your goal is to resolve customer issues quickly and efficiently while ensuring customer satisfaction..."
-                  value={globalPrompt}
-                  onChange={(e) => setGlobalPrompt(e.target.value)}
+                  value={specialInstructions}
+                  onChange={(e) => setSpecialInstructions(e.target.value)}
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   This prompt will be used for all chats unless overridden by chat-specific special instructions.

@@ -18,17 +18,23 @@ class PostgresSettings(BaseSettings):
         env_prefix = "POSTGRES_"
 
 
+class LLMSettings(BaseSettings):
+    API_KEY: str
+    MODEL: str
+
+    class Config:
+        env_prefix = "LLM_"
+
+
 class Settings(BaseSettings):
     db: PostgresSettings = PostgresSettings()
+    llm: LLMSettings = LLMSettings()
 
     # JWT configuration
     secret_key: str
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     refresh_token_expire_days: int = 7
-
-    # AI configuration
-    openai_api_key: str
 
     # Application configuration
     app_name: str = "AI Customer Messaging System"

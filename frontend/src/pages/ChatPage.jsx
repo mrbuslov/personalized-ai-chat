@@ -34,6 +34,7 @@ const ChatPage = ({ user }) => {
   const [showImportMessages, setShowImportMessages] = useState(false);
   const [showChatSettings, setShowChatSettings] = useState(false);
   const [isEditingChat, setIsEditingChat] = useState(false);
+  const [aiConfig, setAiConfig] = useState(null);
   const [editChatData, setEditChatData] = useState({
     name: '',
     client_description: '',
@@ -44,10 +45,15 @@ const ChatPage = ({ user }) => {
     try {
       const chatData = await apiService.getChat(chatId);
       setChat(chatData);
+      
+      // Load AI configuration
+      const aiConfigData = await apiService.getChatAIConfig(chatId);
+      setAiConfig(aiConfigData);
+      
       setEditChatData({
         name: chatData.name,
-        client_description: chatData.client_description || '',
-        special_instructions: chatData.special_instructions || ''
+        client_description: aiConfigData?.client_description || '',
+        special_instructions: aiConfigData?.special_instructions || ''
       });
     } catch (error) {
       setError('Failed to load chat');
@@ -159,8 +165,18 @@ const ChatPage = ({ user }) => {
 
   const handleSaveChatChanges = async () => {
     try {
-      const updatedChat = await apiService.updateChat(chatId, editChatData);
+      // Update chat name only
+      const updatedChat = await apiService.updateChat(chatId, { name: editChatData.name });
       setChat(updatedChat);
+      
+      // Update AI configuration with client description and special instructions
+      const updatedAiConfig = await apiService.updateChatAIConfig(
+        chatId, 
+        editChatData.client_description, 
+        editChatData.special_instructions
+      );
+      setAiConfig(updatedAiConfig);
+      
       setIsEditingChat(false);
     } catch (error) {
       setError('Failed to update chat');
@@ -256,7 +272,7 @@ const ChatPage = ({ user }) => {
       </header>
 
       {/* Chat Info */}
-      {(chat.client_description || isEditingChat) && (
+      {(aiConfig?.client_description || isEditingChat) && (
         <div className="bg-blue-50 border-b border-blue-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             {isEditingChat ? (
@@ -286,14 +302,14 @@ const ChatPage = ({ user }) => {
               </div>
             ) : (
               <div>
-                {chat.client_description && (
+                {aiConfig?.client_description && (
                   <p className="text-sm text-blue-800">
-                    <strong>Client:</strong> {chat.client_description}
+                    <strong>Client:</strong> {aiConfig.client_description}
                   </p>
                 )}
-                {chat.special_instructions && (
+                {aiConfig?.special_instructions && (
                   <p className="text-sm text-blue-800 mt-1">
-                    <strong>Instructions:</strong> {chat.special_instructions}
+                    <strong>Instructions:</strong> {aiConfig.special_instructions}
                   </p>
                 )}
               </div>

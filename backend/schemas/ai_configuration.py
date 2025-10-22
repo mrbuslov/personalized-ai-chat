@@ -5,7 +5,8 @@ from typing import Optional
 
 
 class AIConfigurationBase(BaseModel):
-    global_prompt: Optional[str] = None
+    client_description: Optional[str] = None
+    special_instructions: Optional[str] = None
 
 
 class AIConfigurationCreate(AIConfigurationBase):
@@ -13,7 +14,8 @@ class AIConfigurationCreate(AIConfigurationBase):
 
 
 class AIConfigurationUpdate(BaseModel):
-    global_prompt: Optional[str] = None
+    client_description: Optional[str] = None
+    special_instructions: Optional[str] = None
 
 
 class AIConfigurationResponse(AIConfigurationBase):
@@ -22,6 +24,6 @@ class AIConfigurationResponse(AIConfigurationBase):
     chat_id: Optional[UUID] = None
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True

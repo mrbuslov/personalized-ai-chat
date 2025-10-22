@@ -2,14 +2,11 @@ from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, List
-from .user import UserResponse
 from .message import MessageResponse
 
 
 class ChatBase(BaseModel):
     name: str
-    client_description: Optional[str] = None
-    special_instructions: Optional[str] = None
 
 
 class ChatCreate(ChatBase):
@@ -18,8 +15,6 @@ class ChatCreate(ChatBase):
 
 class ChatUpdate(BaseModel):
     name: Optional[str] = None
-    client_description: Optional[str] = None
-    special_instructions: Optional[str] = None
 
 
 class ChatResponse(ChatBase):
@@ -28,7 +23,7 @@ class ChatResponse(ChatBase):
     company_id: UUID
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
