@@ -19,10 +19,11 @@ const DashboardPage = ({ user }) => {
     try {
       setError('');
       const response = await apiService.getChats();
-      setChats(response.chats);
+      setChats(response?.chats || []);
     } catch (error) {
       setError('Failed to load chats');
       console.error('Error loading chats:', error);
+      setChats([]); // Ensure chats is always an array
     } finally {
       setIsLoading(false);
     }
@@ -127,7 +128,7 @@ const DashboardPage = ({ user }) => {
             <div className="flex justify-center py-12">
               <LoadingSpinner />
             </div>
-          ) : chats.length === 0 ? (
+          ) : chats && chats.length === 0 ? (
             <div className="text-center py-12">
               <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No chats yet</h3>
@@ -142,7 +143,7 @@ const DashboardPage = ({ user }) => {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {chats.map((chat) => (
+              {chats && chats.map((chat) => (
                 <div key={chat.id} className="card hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-lg font-medium text-gray-900 truncate flex-1">
