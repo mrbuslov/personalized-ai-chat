@@ -62,6 +62,8 @@ cors_origins = [
     "http://localhost:8001",
     "https://profound-normally-crappie.ngrok-free.app",
     "https://8525c1343c5f.ngrok-free.app",
+    # Allow all ngrok domains
+    "https://*.ngrok-free.app",
     # Add any other ngrok URLs you might use
 ]
 
@@ -80,6 +82,8 @@ app.add_middleware(
         "Origin",
         "Access-Control-Request-Method",
         "Access-Control-Request-Headers",
+        "ngrok-skip-browser-warning",
+        "Ngrok-Skip-Browser-Warning",
     ],
 )
 
